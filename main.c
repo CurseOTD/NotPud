@@ -4,18 +4,83 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
 
+static void menu_response (GtkWidget* menu_item, gpointer data){
+	if(strcmp(gtk_menu_item_get_label(GTK_MENU_ITEM(menu_item)), "Exit") == 0){
+		gtk_main_quit();
+	}
+}
+
 int main(int argc, char* argv[]) {
-	GtkWidget *window;
+	GtkWidget *window, *menu_box,
+	*menu_bar, *file_menu, *help_menu, *help_item,
+	*menu_item, *edit_menu, *settings_menu;
 
 	gtk_init(&argc, &argv);
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
 	gtk_window_set_title(GTK_WINDOW(window), "NotPud");
-
-	gtk_widget_show(window);
 	
-	gtk_main();
+	menu_bar = gtk_menu_bar_new();
 
+	file_menu = gtk_menu_new();
+	edit_menu = gtk_menu_new();
+	settings_menu = gtk_menu_new();
+	help_menu = gtk_menu_new();
+
+	menu_item = gtk_menu_item_new_with_label("File");
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), file_menu);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("Edit");
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), edit_menu);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("Settings");
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), settings_menu);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("Help");
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), help_menu);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("New");
+	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("Open");
+	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("Save");
+	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("Save as");
+	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("Exit");
+	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(menu_response), NULL);
+
+	menu_item = gtk_menu_item_new_with_label("Copy");
+	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("Paste");
+	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("Cut");
+	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("Font");
+	gtk_menu_shell_append(GTK_MENU_SHELL(settings_menu), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("About Us");
+	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), menu_item);
+
+	menu_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+	gtk_box_pack_start(GTK_BOX(menu_box), menu_bar, 0, 0, 0);
+
+	gtk_container_add(GTK_CONTAINER(window), menu_box);
+
+	gtk_widget_show_all(window);
+	gtk_main();
 	return 0;
 }
