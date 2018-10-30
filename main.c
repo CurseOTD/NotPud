@@ -1,4 +1,5 @@
-//gcc main.c -o main `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
+// For compile use
+// gcc main.c -o main `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,13 +12,15 @@ static void menu_response (GtkWidget* menu_item, gpointer data){
 }
 
 int main(int argc, char* argv[]) {
-	GtkWidget *window, *menu_box,
-	*menu_bar, *file_menu, *help_menu, *help_item,
-	*menu_item, *edit_menu, *settings_menu;
+	GtkWidget *window, *box, *notebook, *scrolled_window,
+	*menu_bar, *file_menu, *help_menu, *help_item, *buffer,
+	*multiline_text, *menu_item, *edit_menu, *settings_menu, *view;
 
 	gtk_init(&argc, &argv);
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	g_signal_connect(window, "destroy", gtk_main_quit, NULL);
+	int width, height;
 	gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
 	gtk_window_set_title(GTK_WINDOW(window), "NotPud");
 	
@@ -72,13 +75,29 @@ int main(int argc, char* argv[]) {
 	menu_item = gtk_menu_item_new_with_label("Font");
 	gtk_menu_shell_append(GTK_MENU_SHELL(settings_menu), menu_item);
 
+	menu_item = gtk_menu_item_new_with_label("Text wrap");
+	gtk_menu_shell_append(GTK_MENU_SHELL(settings_menu), menu_item);
+
 	menu_item = gtk_menu_item_new_with_label("About Us");
 	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), menu_item);
 
-	menu_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	gtk_box_pack_start(GTK_BOX(menu_box), menu_bar, 0, 0, 0);
+	box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+	gtk_box_pack_start(GTK_BOX(box), menu_bar, 0, 0, 0);
 
-	gtk_container_add(GTK_CONTAINER(window), menu_box);
+	view = gtk_text_view_new();
+
+	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (scrolled_window), 
+                                   GTK_POLICY_AUTOMATIC, 
+                                   GTK_POLICY_AUTOMATIC);
+
+	gtk_container_add(GTK_CONTAINER(scrolled_window), view);
+	gtk_container_set_border_width (GTK_CONTAINER(scrolled_window), 5);
+	
+	gtk_box_pack_start(GTK_BOX(box), scrolled_window, 100, 100, 0);
+	gtk_container_add(GTK_CONTAINER(window), box);
+
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD_CHAR);
 
 	gtk_widget_show_all(window);
 	gtk_main();
