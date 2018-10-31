@@ -11,6 +11,23 @@ static void menu_response (GtkWidget* menu_item, gpointer data){
 	}
 }
 
+static void about_us(GtkWidget* menu_item, GtkWindow *window)
+{
+    const gchar *authors[] = { "Ilya Baryko","Maxim Kuntsevich", "Nadezhda Sinkevich", "David Gulkevich", NULL };
+    const gchar *license = "inc...";
+    GdkPixbuf *logo = gdk_pixbuf_new_from_file("./png/logo.png", NULL);
+
+    gtk_show_about_dialog(window,
+                            "authors", authors, "license", license, "license-type", GTK_LICENSE_CUSTOM,
+                            "logo", logo,
+                            "program-name", "NotPud - the best notepad",
+                            "version", "v. 1.0",
+                            "comments", "Remember this application. It will remain forever. ;)",
+                            "website", "https://vk.com/levelup_bsuir", "website-label", "Application Homepage",
+                            "copyright", "(C) 2018 lvlup.c",
+                            "wrap-license", TRUE, NULL);
+}
+
 int main(int argc, char* argv[]) {
 	GtkWidget *window, *box, *notebook, *scrolled_window,
 	*menu_bar, *file_menu, *help_menu, *help_item, *buffer,
@@ -80,6 +97,7 @@ int main(int argc, char* argv[]) {
 
 	menu_item = gtk_menu_item_new_with_label("About Us");
 	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), menu_item);
+	    g_signal_connect(menu_item, "activate", G_CALLBACK(about_us), NULL);
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	gtk_box_pack_start(GTK_BOX(box), menu_bar, 0, 0, 0);
