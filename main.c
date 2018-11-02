@@ -18,7 +18,7 @@ static void menu_response (GtkWidget* menu_item, gpointer data) {
 
 static void about_us(GtkWidget* menu_item, GtkWindow *window) {
     const gchar *authors[] = {"Ilya Baryko","Maksim Kuntsevich", "Nadezhda Sinkevich", "David Gulkevich", NULL };
-    GdkPixbuf *logo = gdk_pixbuf_new_from_file("./png/logo.png", NULL);
+    GdkPixbuf *logo = gdk_pixbuf_new_from_file("./source/logo.png", NULL);
     gtk_show_about_dialog(window,
                             "authors", authors,
                             "logo", logo,
@@ -105,6 +105,7 @@ int main(int argc, char* argv[]) {
 	GtkWidget *window, *box, *scrolled_window,
 	*menu_item, *menu_bar, *file_menu, *help_menu,
 	*edit_menu, *settings_menu, *view;
+	GdkPixbuf *icon = gdk_pixbuf_new_from_file("./source/icon.png", NULL);
 
 	gtk_init(&argc, &argv);
 
@@ -112,6 +113,7 @@ int main(int argc, char* argv[]) {
 	g_signal_connect(window, "destroy", gtk_main_quit, NULL);
 	gtk_window_set_default_size(GTK_WINDOW(window), 1152, 768);
 	gtk_window_set_title(GTK_WINDOW(window), "NotPud");
+	gtk_window_set_icon(GTK_WINDOW(window), icon);
 
 	buffer = gtk_text_buffer_new(NULL);
 	view = gtk_text_view_new_with_buffer(buffer);
