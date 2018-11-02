@@ -1,5 +1,5 @@
 // For compile use
-// gcc main.c -o main `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
+// gcc main.c -o main `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0` -mwindows
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -102,6 +102,24 @@ static void save_dialog(GtkWidget* menu_item, GtkWidget* window) {
 	}
 }
 
+static void font_family(GtkWidget* menu_item, gpointer data) {
+    GtkResponseType result;
+
+    GtkWidget *dialog = gtk_font_selection_dialog_new("Select a font");
+
+    result = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    if (result == GTK_RESPONSE_OK || result == GTK_RESPONSE_APPLY) {
+        PangoFontDescription *font_desc;
+        char *fontname = gtk_font_selection_dialog_get_font_name(
+            GTK_FONT_SELECTION_DIALOG(dialog));
+        font_desc = pango_font_description_from_string(fontname);
+        gtk_widget_modify_font(view, font_desc);
+        g_free(fontname);
+    }
+    gtk_widget_destroy(dialog);
+}
+
 static void text_wrap(GtkWidget* menu_item, GtkWidget* window) {
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menu_item))) {
 		gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD_CHAR);
@@ -132,7 +150,7 @@ int main(int argc, char* argv[]) {
                                    GTK_POLICY_AUTOMATIC, 
                                    GTK_POLICY_AUTOMATIC);
 								   
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD_CHAR);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
 	
 	menu_bar = gtk_menu_bar_new();
 
@@ -187,6 +205,7 @@ int main(int argc, char* argv[]) {
 
 	menu_item = gtk_menu_item_new_with_label("Font");
 	gtk_menu_shell_append(GTK_MENU_SHELL(settings_menu), menu_item);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(font_family), NULL);
 
 	menu_item = gtk_check_menu_item_new_with_label("Text wrap");
 	gtk_menu_shell_append(GTK_MENU_SHELL(settings_menu), menu_item);
