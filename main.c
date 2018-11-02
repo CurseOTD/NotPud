@@ -6,6 +6,7 @@
 #include <locale.h>
 #include <gtk/gtk.h>
 
+GtkWidget *view;
 GtkTextBuffer *buffer;
 GtkTextIter start, end;
 gchar *content, *filename;
@@ -101,10 +102,18 @@ static void save_dialog(GtkWidget* menu_item, GtkWidget* window) {
 	}
 }
 
+static void text_wrap(GtkWidget* menu_item, GtkWidget* window) {
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menu_item))) {
+		gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD_CHAR);
+	} else {
+		gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
+	}
+}
+
 int main(int argc, char* argv[]) {
 	GtkWidget *window, *box, *scrolled_window,
 	*menu_item, *menu_bar, *file_menu, *help_menu,
-	*edit_menu, *settings_menu, *view;
+	*edit_menu, *settings_menu;
 	GdkPixbuf *icon = gdk_pixbuf_new_from_file("./source/icon.png", NULL);
 
 	gtk_init(&argc, &argv);
@@ -179,8 +188,9 @@ int main(int argc, char* argv[]) {
 	menu_item = gtk_menu_item_new_with_label("Font");
 	gtk_menu_shell_append(GTK_MENU_SHELL(settings_menu), menu_item);
 
-	menu_item = gtk_menu_item_new_with_label("Text wrap");
+	menu_item = gtk_check_menu_item_new_with_label("Text wrap");
 	gtk_menu_shell_append(GTK_MENU_SHELL(settings_menu), menu_item);
+	g_signal_connect(menu_item, "toggled", G_CALLBACK(text_wrap), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("About Us");
 	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), menu_item);
