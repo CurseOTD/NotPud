@@ -3,43 +3,73 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <locale.h>
 #include <gtk/gtk.h>
 
-static void menu_response (GtkWidget* menu_item, gpointer data){
+GtkTextBuffer *buffer;
+gchar *content;
+
+static void menu_response (GtkWidget* menu_item, gpointer data) {
 	if(strcmp(gtk_menu_item_get_label(GTK_MENU_ITEM(menu_item)), "Exit") == 0){
 		gtk_main_quit();
 	}
 }
 
-static void about_us(GtkWidget* menu_item, GtkWindow *window)
-{
-    const gchar *authors[] = { "Ilya Baryko","Maxim Kuntsevich", "Nadezhda Sinkevich", "David Gulkevich", NULL };
-    const gchar *license = "inc...";
+static void about_us(GtkWidget* menu_item, GtkWindow *window) {
+    const gchar *authors[] = { "Ilya Baryko","Maksim Kuntsevich", "Nadezhda Sinkevich", "David Gulkevich", NULL };
     GdkPixbuf *logo = gdk_pixbuf_new_from_file("./png/logo.png", NULL);
 
     gtk_show_about_dialog(window,
-                            "authors", authors, "license", license, "license-type", GTK_LICENSE_CUSTOM,
+                            "authors", authors,
                             "logo", logo,
                             "program-name", "NotPud - the best notepad",
-                            "version", "v. 1.0",
+                            "version", "v1.0",
                             "comments", "Remember this application. It will remain forever. ;)",
                             "website", "https://vk.com/levelup_bsuir", "website-label", "Application Homepage",
-                            "copyright", "(C) 2018 lvlup.c",
-                            "wrap-license", TRUE, NULL);
+                            "copyright", "(C) 2018 lvlup.c", NULL);
+}
+
+static void open_dialog(GtkWidget* menu_item, GtkWidget* window) {
+	GtkWidget *dialog;
+
+	dialog = gtk_file_chooser_dialog_new("Open file",
+										   GTK_WINDOW(window),
+										   GTK_FILE_CHOOSER_ACTION_OPEN,
+										   GTK_STOCK_OK, GTK_RESPONSE_OK,
+                                      	   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+										   NULL);
+	gtk_widget_show_all(dialog);
+	gint res = gtk_dialog_run(GTK_DIALOG(dialog));
+	if (res == GTK_RESPONSE_OK) {
+		g_file_get_contents(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog)), &content, NULL, NULL);
+		content = g_locale_to_utf8(content, -1, NULL, NULL, NULL);
+		gtk_text_buffer_set_text(buffer, content, -1);
+		g_free(content);
+	}
+	gtk_widget_destroy(dialog);
 }
 
 int main(int argc, char* argv[]) {
-	GtkWidget *window, *box, *notebook, *scrolled_window,
-	*menu_bar, *file_menu, *help_menu, *help_item, *buffer,
-	*multiline_text, *menu_item, *edit_menu, *settings_menu, *view;
+	GtkWidget *window, *box, *scrolled_window,
+	*menu_item, *menu_bar, *file_menu, *help_menu,
+	*edit_menu, *settings_menu, *view;
 
 	gtk_init(&argc, &argv);
-
-	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	
+ 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	g_signal_connect(window, "destroy", gtk_main_quit, NULL);
-	int width, height;
-	gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
+	gtk_window_set_default_size(GTK_WINDOW(window), 1152, 768);
 	gtk_window_set_title(GTK_WINDOW(window), "NotPud");
+
+	buffer = gtk_text_buffer_new(NULL);
+	view = gtk_text_view_new_with_buffer(buffer);
+
+	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (scrolled_window), 
+                                   GTK_POLICY_AUTOMATIC, 
+                                   GTK_POLICY_AUTOMATIC);
+								   
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD_CHAR);
 	
 	menu_bar = gtk_menu_bar_new();
 
@@ -69,6 +99,7 @@ int main(int argc, char* argv[]) {
 
 	menu_item = gtk_menu_item_new_with_label("Open");
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(open_dialog), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("Save");
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
@@ -97,25 +128,16 @@ int main(int argc, char* argv[]) {
 
 	menu_item = gtk_menu_item_new_with_label("About Us");
 	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), menu_item);
-	    g_signal_connect(menu_item, "activate", G_CALLBACK(about_us), NULL);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(about_us), NULL);
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	gtk_box_pack_start(GTK_BOX(box), menu_bar, 0, 0, 0);
-
-	view = gtk_text_view_new();
-
-	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (scrolled_window), 
-                                   GTK_POLICY_AUTOMATIC, 
-                                   GTK_POLICY_AUTOMATIC);
 
 	gtk_container_add(GTK_CONTAINER(scrolled_window), view);
 	gtk_container_set_border_width (GTK_CONTAINER(scrolled_window), 5);
 	
 	gtk_box_pack_start(GTK_BOX(box), scrolled_window, 100, 100, 0);
 	gtk_container_add(GTK_CONTAINER(window), box);
-
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD_CHAR);
 
 	gtk_widget_show_all(window);
 	gtk_main();
