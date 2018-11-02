@@ -3,10 +3,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <locale.h>
 #include <gtk/gtk.h>
 
 GtkTextBuffer *buffer;
-gchar *content;
+GtkTextIter start, end;
+gchar *content, *filename;
 
 static void menu_response (GtkWidget* menu_item, gpointer data) {
 	if(strcmp(gtk_menu_item_get_label(GTK_MENU_ITEM(menu_item)), "Exit") == 0){
@@ -28,22 +30,75 @@ static void about_us(GtkWidget* menu_item, GtkWindow *window) {
 }
 
 static void open_dialog(GtkWidget* menu_item, GtkWidget* window) {
+    GtkWidget *dialog;
+    dialog = gtk_file_chooser_dialog_new("Open file",
+                                        GTK_WINDOW(window),
+                                        GTK_FILE_CHOOSER_ACTION_OPEN,
+                                        GTK_STOCK_OK, GTK_RESPONSE_OK,
+                                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                        NULL);
+    gtk_widget_show_all(dialog);
+    gint res = gtk_dialog_run(GTK_DIALOG(dialog));
+    if (res == GTK_RESPONSE_OK) {
+		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        g_file_get_contents(filename, &content, NULL, NULL);
+        content = g_locale_to_utf8(content, -1, NULL, NULL, NULL);
+        gtk_text_buffer_set_text(buffer, content, -1);
+        g_free(content);
+    }
+    gtk_widget_destroy(dialog);
+}
+
+static void saveas_dialog(GtkWidget* menu_item, GtkWidget* window) {
 	GtkWidget *dialog;
-	dialog = gtk_file_chooser_dialog_new("Open file",
-										 GTK_WINDOW(window),
-										 GTK_FILE_CHOOSER_ACTION_OPEN,
-										 GTK_STOCK_OK, GTK_RESPONSE_OK,
-                                      	 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-										 NULL);
+	dialog = gtk_file_chooser_dialog_new("Save file",
+	 									 GTK_WINDOW(window),
+	 									 GTK_FILE_CHOOSER_ACTION_SAVE,
+	 									 GTK_STOCK_OK, GTK_RESPONSE_OK,
+                                       	 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+	 									 NULL);
+	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER(dialog), TRUE);
 	gtk_widget_show_all(dialog);
 	gint res = gtk_dialog_run(GTK_DIALOG(dialog));
 	if (res == GTK_RESPONSE_OK) {
-		g_file_get_contents(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog)), &content, NULL, NULL);
-		content = g_locale_to_utf8(content, -1, NULL, NULL, NULL);
-		gtk_text_buffer_set_text(buffer, content, -1);
+		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		gtk_text_buffer_get_start_iter(buffer, &start);
+		gtk_text_buffer_get_end_iter(buffer, &end);
+		content = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+		g_file_set_contents(filename, content, -1, NULL);
 		g_free(content);
 	}
 	gtk_widget_destroy(dialog);
+}
+
+static void save_dialog(GtkWidget* menu_item, GtkWidget* window) {
+	if (filename != NULL) {
+		gtk_text_buffer_get_start_iter(buffer, &start);
+		gtk_text_buffer_get_end_iter(buffer, &end);
+		content = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+		g_file_set_contents(filename, content, -1, NULL);
+		g_free(content);
+	} else {
+		GtkWidget *dialog;
+		dialog = gtk_file_chooser_dialog_new("Save file",
+		 									 GTK_WINDOW(window),
+		 									 GTK_FILE_CHOOSER_ACTION_SAVE,
+		 									 GTK_STOCK_OK, GTK_RESPONSE_OK,
+    	                                   	 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		 									 NULL);
+		gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER(dialog), TRUE);
+		gtk_widget_show_all(dialog);
+		gint res = gtk_dialog_run(GTK_DIALOG(dialog));
+		if (res == GTK_RESPONSE_OK) {
+			filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+			gtk_text_buffer_get_start_iter(buffer, &start);
+			gtk_text_buffer_get_end_iter(buffer, &end);
+			content = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+			g_file_set_contents(filename, content, -1, NULL);
+			g_free(content);
+		}
+		gtk_widget_destroy(dialog);
+	}
 }
 
 int main(int argc, char* argv[]) {
@@ -100,9 +155,11 @@ int main(int argc, char* argv[]) {
 
 	menu_item = gtk_menu_item_new_with_label("Save");
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(save_dialog), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("Save as");
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(saveas_dialog), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("Exit");
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
