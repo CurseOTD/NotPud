@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <locale.h>
 #include <gtk/gtk.h>
 
 GtkTextBuffer *buffer;
@@ -16,9 +15,8 @@ static void menu_response (GtkWidget* menu_item, gpointer data) {
 }
 
 static void about_us(GtkWidget* menu_item, GtkWindow *window) {
-    const gchar *authors[] = { "Ilya Baryko","Maksim Kuntsevich", "Nadezhda Sinkevich", "David Gulkevich", NULL };
+    const gchar *authors[] = {"Ilya Baryko","Maksim Kuntsevich", "Nadezhda Sinkevich", "David Gulkevich", NULL };
     GdkPixbuf *logo = gdk_pixbuf_new_from_file("./png/logo.png", NULL);
-
     gtk_show_about_dialog(window,
                             "authors", authors,
                             "logo", logo,
@@ -31,13 +29,12 @@ static void about_us(GtkWidget* menu_item, GtkWindow *window) {
 
 static void open_dialog(GtkWidget* menu_item, GtkWidget* window) {
 	GtkWidget *dialog;
-
 	dialog = gtk_file_chooser_dialog_new("Open file",
-										   GTK_WINDOW(window),
-										   GTK_FILE_CHOOSER_ACTION_OPEN,
-										   GTK_STOCK_OK, GTK_RESPONSE_OK,
-                                      	   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-										   NULL);
+										 GTK_WINDOW(window),
+										 GTK_FILE_CHOOSER_ACTION_OPEN,
+										 GTK_STOCK_OK, GTK_RESPONSE_OK,
+                                      	 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+										 NULL);
 	gtk_widget_show_all(dialog);
 	gint res = gtk_dialog_run(GTK_DIALOG(dialog));
 	if (res == GTK_RESPONSE_OK) {
@@ -55,8 +52,8 @@ int main(int argc, char* argv[]) {
 	*edit_menu, *settings_menu, *view;
 
 	gtk_init(&argc, &argv);
-	
- 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	g_signal_connect(window, "destroy", gtk_main_quit, NULL);
 	gtk_window_set_default_size(GTK_WINDOW(window), 1152, 768);
 	gtk_window_set_title(GTK_WINDOW(window), "NotPud");
