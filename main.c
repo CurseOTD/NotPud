@@ -168,7 +168,8 @@ static void about_us(GtkWidget* menu_item, GtkWindow *window) {
 int main(int argc, char* argv[]) {
 	GtkWidget *window, *box, *scrolled_window,
 	*menu_item, *menu_bar, *file_menu, *help_menu,
-	*edit_menu, *format_menu, *view_menu;
+	*edit_menu, *format_menu, *view_menu, *separator;
+
 	GdkPixbuf *icon = gdk_pixbuf_new_from_file("./source/icon.png", NULL);
 
 	gtk_init(&argc, &argv);
@@ -200,25 +201,35 @@ int main(int argc, char* argv[]) {
 	view_menu = gtk_menu_new();
 	help_menu = gtk_menu_new();
 
+	separator = gtk_separator_menu_item_new();
 	menu_item = gtk_menu_item_new_with_label("File");
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), file_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), separator);
 
+	separator = gtk_separator_menu_item_new();
 	menu_item = gtk_menu_item_new_with_label("Edit");
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), edit_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), separator);
 
+	separator = gtk_separator_menu_item_new();
 	menu_item = gtk_menu_item_new_with_label("Format");
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), format_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), separator);
 
+	separator = gtk_separator_menu_item_new();
 	menu_item = gtk_menu_item_new_with_label("View");
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), view_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), separator);
 
+	separator = gtk_separator_menu_item_new();
 	menu_item = gtk_menu_item_new_with_label("Help");
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), help_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), separator);
 
 	menu_item = gtk_menu_item_new_with_label("New");
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
@@ -232,8 +243,10 @@ int main(int argc, char* argv[]) {
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
 	g_signal_connect(menu_item, "activate", G_CALLBACK(save_dialog), NULL);
 
+	separator = gtk_separator_menu_item_new();
 	menu_item = gtk_menu_item_new_with_label("Save as");
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), separator);
 	g_signal_connect(menu_item, "activate", G_CALLBACK(saveas_dialog), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("Exit");
@@ -252,8 +265,10 @@ int main(int argc, char* argv[]) {
 	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
 	g_signal_connect(menu_item, "activate", G_CALLBACK(textpaste), NULL);
 
+	separator = gtk_separator_menu_item_new();
 	menu_item = gtk_menu_item_new_with_label("Delete");
 	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), separator);
 	g_signal_connect(menu_item, "activate", G_CALLBACK(textdelete), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("Time/Date");
@@ -279,9 +294,14 @@ int main(int argc, char* argv[]) {
 	gtk_box_pack_start(GTK_BOX(box), menu_bar, 0, 0, 0);
 
 	gtk_container_add(GTK_CONTAINER(scrolled_window), view);
-	gtk_container_set_border_width (GTK_CONTAINER(scrolled_window), 5);
+	gtk_scrolled_window_set_shadow_type (scrolled_window, GTK_SHADOW_NONE);
+	gtk_container_set_border_width (GTK_CONTAINER(scrolled_window), 0);
+	gtk_text_view_set_left_margin(view, 5);
+	gtk_text_view_set_right_margin(view, 5);
+	gtk_text_view_set_top_margin(view, 5);
+	gtk_text_view_set_bottom_margin(view, 5);
 	
-	gtk_box_pack_start(GTK_BOX(box), scrolled_window, 100, 100, 0);
+	gtk_box_pack_start(GTK_BOX(box), scrolled_window, TRUE, TRUE, 0);
 	gtk_container_add(GTK_CONTAINER(window), box);
 
 	gtk_widget_show_all(window);
