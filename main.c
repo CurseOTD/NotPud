@@ -9,6 +9,8 @@
 GtkWidget *view;
 GtkTextBuffer *buffer;
 GtkTextIter start, end;
+GdkAtom atom;
+GtkClipboard *clipboard;
 gchar *content, *filename;
 
 static void menu_response (GtkWidget* menu_item, gpointer data) {
@@ -91,6 +93,18 @@ static void save_dialog(GtkWidget* menu_item, GtkWidget* window) {
 	}
 }
 
+static void textcut(GtkWidget* menu_item, gpointer data) {
+    gtk_text_buffer_cut_clipboard(buffer, clipboard, TRUE);
+}
+
+static void textcopy(GtkWidget* menu_item, gpointer data) {
+    gtk_text_buffer_copy_clipboard(buffer, clipboard);
+}
+
+static void textpaste(GtkWidget* menu_item, gpointer data) {
+    gtk_text_buffer_paste_clipboard(buffer, clipboard, NULL, TRUE);
+}
+
 static void textdelete(GtkWidget* menu_item, gpointer data) {
     gtk_text_buffer_delete_selection(buffer, TRUE, TRUE);
 }
@@ -150,6 +164,9 @@ int main(int argc, char* argv[]) {
 	GdkPixbuf *icon = gdk_pixbuf_new_from_file("./source/icon.png", NULL);
 
 	gtk_init(&argc, &argv);
+
+	atom = gdk_atom_intern("CLIPBOARD", TRUE);
+    clipboard = gtk_clipboard_get(atom);
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	g_signal_connect(window, "destroy", gtk_main_quit, NULL);
@@ -211,13 +228,15 @@ int main(int argc, char* argv[]) {
 
     menu_item = gtk_menu_item_new_with_label("Cut");
 	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(textcut), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("Copy");
 	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(textcopy), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("Paste");
 	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
-	g_signal_connect(menu_item, "activate", G_CALLBACK(gtk_editable_paste_clipboard ), NULL);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(textpaste), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("Delete");
 	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
