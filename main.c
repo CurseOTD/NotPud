@@ -19,6 +19,10 @@ static void menu_response (GtkWidget* menu_item, gpointer data) {
 	}
 }
 
+static void new_file(GtkWidget* menu_item, gpointer data){
+    gtk_text_buffer_set_text(buffer, "", -1);
+}
+
 static void open_dialog(GtkWidget* menu_item, GtkWidget* window) {
     GtkWidget *dialog;
     dialog = gtk_file_chooser_dialog_new("Open file",
@@ -209,6 +213,7 @@ int main(int argc, char* argv[]) {
 
 	menu_item = gtk_menu_item_new_with_label("New");
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(new_file), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("Open");
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
