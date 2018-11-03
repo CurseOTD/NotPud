@@ -17,19 +17,6 @@ static void menu_response (GtkWidget* menu_item, gpointer data) {
 	}
 }
 
-static void about_us(GtkWidget* menu_item, GtkWindow *window) {
-    const gchar *authors[] = {"Ilya Baryko","Maksim Kuntsevich", "Nadezhda Sinkevich", "David Gulkevich", NULL };
-    GdkPixbuf *logo = gdk_pixbuf_new_from_file("./source/logo.png", NULL);
-    gtk_show_about_dialog(window,
-                            "authors", authors,
-                            "logo", logo,
-                            "program-name", "NotPud - the best notepad",
-                            "version", "v1.0",
-                            "comments", "Remember this application. It will remain forever. ;)",
-                            "website", "https://vk.com/levelup_bsuir", "website-label", "Application Homepage",
-                            "copyright", "(C) 2018 lvlup.c", NULL);
-}
-
 static void open_dialog(GtkWidget* menu_item, GtkWidget* window) {
     GtkWidget *dialog;
     dialog = gtk_file_chooser_dialog_new("Open file",
@@ -60,6 +47,8 @@ static void saveas_dialog(GtkWidget* menu_item, GtkWidget* window) {
 	 									 NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER(dialog), TRUE);
 	gtk_widget_show_all(dialog);
+    gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER(dialog), "Untitled document.txt");
+
 	gint res = gtk_dialog_run(GTK_DIALOG(dialog));
 	if (res == GTK_RESPONSE_OK) {
 		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
@@ -102,6 +91,19 @@ static void save_dialog(GtkWidget* menu_item, GtkWidget* window) {
 	}
 }
 
+static void textdelete(GtkWidget* menu_item, gpointer data) {
+    gtk_text_buffer_delete_selection(buffer, TRUE, TRUE);
+}
+
+static void timedate(GtkWidget* menu_item, gpointer data) {
+    time_t now = time(0);
+    char* datetime = asctime(localtime(&now));
+
+    gtk_text_buffer_insert_at_cursor(buffer,
+        datetime,
+        strlen(datetime) - 1);
+}
+
 static void font_family(GtkWidget* menu_item, gpointer data) {
     GtkResponseType result;
 
@@ -126,6 +128,19 @@ static void text_wrap(GtkWidget* menu_item, GtkWidget* window) {
 	} else {
 		gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
 	}
+}
+
+static void about_us(GtkWidget* menu_item, GtkWindow *window) {
+    const gchar *authors[] = {"Ilya Baryko","Maksim Kuntsevich", "Nadezhda Sinkevich", "David Gulkevich", NULL };
+    GdkPixbuf *logo = gdk_pixbuf_new_from_file("./source/logo.png", NULL);
+    gtk_show_about_dialog(window,
+                            "authors", authors,
+                            "logo", logo,
+                            "program-name", "NotPud - the best notepad",
+                            "version", "v1.0",
+                            "comments", "Remember this application. It will remain forever. ;)",
+                            "website", "https://vk.com/levelup_bsuir", "website-label", "Application Homepage",
+                            "copyright", "(C) 2018 lvlup.c", NULL);
 }
 
 int main(int argc, char* argv[]) {
@@ -194,14 +209,23 @@ int main(int argc, char* argv[]) {
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), menu_item);
 	g_signal_connect(menu_item, "activate", G_CALLBACK(menu_response), NULL);
 
+    menu_item = gtk_menu_item_new_with_label("Cut");
+	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
+
 	menu_item = gtk_menu_item_new_with_label("Copy");
 	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
 
 	menu_item = gtk_menu_item_new_with_label("Paste");
 	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(gtk_editable_paste_clipboard ), NULL);
 
-	menu_item = gtk_menu_item_new_with_label("Cut");
+	menu_item = gtk_menu_item_new_with_label("Delete");
 	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(textdelete), NULL);
+
+	menu_item = gtk_menu_item_new_with_label("Time/Date");
+	gtk_menu_shell_append(GTK_MENU_SHELL(edit_menu), menu_item);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(timedate), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("Font");
 	gtk_menu_shell_append(GTK_MENU_SHELL(settings_menu), menu_item);
