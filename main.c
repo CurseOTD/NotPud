@@ -13,6 +13,7 @@ GdkAtom atom;
 GtkClipboard *clipboard;
 gchar *content, *filename;
 
+/* File menu */
 static void menu_response (GtkWidget* menu_item, gpointer data) {
 	if(strcmp(gtk_menu_item_get_label(GTK_MENU_ITEM(menu_item)), "Exit") == 0){
 		gtk_main_quit();
@@ -97,6 +98,7 @@ static void save_dialog(GtkWidget* menu_item, GtkWidget* window) {
 	}
 }
 
+/* Edit menu */
 static void textcut(GtkWidget* menu_item, gpointer data) {
     gtk_text_buffer_cut_clipboard(buffer, clipboard, TRUE);
 }
@@ -117,11 +119,10 @@ static void timedate(GtkWidget* menu_item, gpointer data) {
     time_t now = time(0);
     char* datetime = asctime(localtime(&now));
 
-    gtk_text_buffer_insert_at_cursor(buffer,
-        datetime,
-        strlen(datetime) - 1);
+    gtk_text_buffer_insert_at_cursor(buffer, datetime, strlen(datetime) - 1);
 }
 
+/* Format menu */
 static void font_family(GtkWidget* menu_item, gpointer data) {
     GtkResponseType result;
 
@@ -148,8 +149,11 @@ static void text_wrap(GtkWidget* menu_item, GtkWidget* window) {
 	}
 }
 
+/* View menu */
+
+/* Help menu */
 static void about_us(GtkWidget* menu_item, GtkWindow *window) {
-    const gchar *authors[] = {"Ilya Baryko","Maksim Kuntsevich", "Nadezhda Sinkevich", "David Gulkevich", NULL };
+    const gchar *authors[] = {"Ilya Baryko (shineRR)","Maksim Kuntsevich (CurseOTD)", "Nadezhda Sinkevich", "David Gulkevich", NULL };
     GdkPixbuf *logo = gdk_pixbuf_new_from_file("./source/logo.png", NULL);
     gtk_show_about_dialog(window,
                             "authors", authors,
@@ -164,7 +168,7 @@ static void about_us(GtkWidget* menu_item, GtkWindow *window) {
 int main(int argc, char* argv[]) {
 	GtkWidget *window, *box, *scrolled_window,
 	*menu_item, *menu_bar, *file_menu, *help_menu,
-	*edit_menu, *settings_menu;
+	*edit_menu, *format_menu, *view_menu;
 	GdkPixbuf *icon = gdk_pixbuf_new_from_file("./source/icon.png", NULL);
 
 	gtk_init(&argc, &argv);
@@ -192,7 +196,8 @@ int main(int argc, char* argv[]) {
 
 	file_menu = gtk_menu_new();
 	edit_menu = gtk_menu_new();
-	settings_menu = gtk_menu_new();
+	format_menu = gtk_menu_new();
+	view_menu = gtk_menu_new();
 	help_menu = gtk_menu_new();
 
 	menu_item = gtk_menu_item_new_with_label("File");
@@ -203,8 +208,12 @@ int main(int argc, char* argv[]) {
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), edit_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
 
-	menu_item = gtk_menu_item_new_with_label("Settings");
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), settings_menu);
+	menu_item = gtk_menu_item_new_with_label("Format");
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), format_menu);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
+
+	menu_item = gtk_menu_item_new_with_label("View");
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), view_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
 
 	menu_item = gtk_menu_item_new_with_label("Help");
@@ -252,12 +261,15 @@ int main(int argc, char* argv[]) {
 	g_signal_connect(menu_item, "activate", G_CALLBACK(timedate), NULL);
 
 	menu_item = gtk_menu_item_new_with_label("Font");
-	gtk_menu_shell_append(GTK_MENU_SHELL(settings_menu), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(format_menu), menu_item);
 	g_signal_connect(menu_item, "activate", G_CALLBACK(font_family), NULL);
 
 	menu_item = gtk_check_menu_item_new_with_label("Text wrap");
-	gtk_menu_shell_append(GTK_MENU_SHELL(settings_menu), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(format_menu), menu_item);
 	g_signal_connect(menu_item, "toggled", G_CALLBACK(text_wrap), NULL);
+
+	menu_item = gtk_check_menu_item_new_with_label("Status Bar");
+	gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), menu_item);
 
 	menu_item = gtk_menu_item_new_with_label("About Us");
 	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), menu_item);
