@@ -12,6 +12,7 @@ GtkTextIter start, end;
 GdkAtom atom;
 GtkClipboard *clipboard;
 gchar *content, *filename;
+GtkStyleContext *context;
 
 /* File menu */
 static void menu_response (GtkWidget* menu_item, gpointer data) {
@@ -62,6 +63,7 @@ static void saveas_dialog(GtkWidget* menu_item, GtkWidget* window) {
 		gtk_text_buffer_get_start_iter(buffer, &start);
 		gtk_text_buffer_get_end_iter(buffer, &end);
 		content = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+		content = g_locale_from_utf8(content, -1, NULL, NULL, NULL);
 		g_file_set_contents(filename, content, -1, NULL);
 		g_free(content);
 	}
@@ -73,6 +75,7 @@ static void save_dialog(GtkWidget* menu_item, GtkWidget* window) {
 		gtk_text_buffer_get_start_iter(buffer, &start);
 		gtk_text_buffer_get_end_iter(buffer, &end);
 		content = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+		content = g_locale_from_utf8(content, -1, NULL, NULL, NULL);
 		g_file_set_contents(filename, content, -1, NULL);
 		g_free(content);
 	} else {
@@ -91,6 +94,7 @@ static void save_dialog(GtkWidget* menu_item, GtkWidget* window) {
 			gtk_text_buffer_get_start_iter(buffer, &start);
 			gtk_text_buffer_get_end_iter(buffer, &end);
 			content = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+			content = g_locale_from_utf8(content, -1, NULL, NULL, NULL);
 			g_file_set_contents(filename, content, -1, NULL);
 			g_free(content);
 		}
