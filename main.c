@@ -6,13 +6,12 @@
 #include <locale.h>
 #include <gtk/gtk.h>
 
-GtkWidget *view;
+GtkWidget *view, *window, *box, *scrolled_window, *status_bar;
 GtkTextBuffer *buffer;
 GtkTextIter start, end;
 GdkAtom atom;
 GtkClipboard *clipboard;
 gchar *content, *filename;
-GtkStyleContext *context;
 
 /* File menu */
 static void menu_response (GtkWidget* menu_item, gpointer data) {
@@ -153,11 +152,22 @@ static void text_wrap(GtkWidget* menu_item, GtkWidget* window) {
 	}
 }
 
-/* View menu */
+/*
+static void show_status_bar(GtkWidget* menu_item, GtkWidget* window) {
+	status_bar = gtk_statusbar_new();
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menu_item))) {
+		gtk_box_pack_end(GTK_BOX(box), status_bar, TRUE, TRUE, 0);
+		gtk_container_add(GTK_CONTAINER(window), box);
+		gtk_widget_show_all(window);
+	} else {
+		gtk_widget_destroy(GTK_STATUSBAR(status_bar));	
+	}
+}
+*/
 
 /* Help menu */
 static void about_us(GtkWidget* menu_item, GtkWindow *window) {
-    const gchar *authors[] = {"Ilya Baryko (shineRR)","Maksim Kuntsevich (CurseOTD)", "Nadezhda Sinkevich", "David Gulkevich", NULL };
+    const gchar *authors[] = {"Ilya Baryko (shineRR)","Maksim Kuntsevich (CurseRED)", "Nadezhda Sinkevich", "David Gulkevich", NULL };
     GdkPixbuf *logo = gdk_pixbuf_new_from_file("./source/logo.png", NULL);
     gtk_show_about_dialog(window,
                             "authors", authors,
@@ -170,8 +180,7 @@ static void about_us(GtkWidget* menu_item, GtkWindow *window) {
 }
 
 int main(int argc, char* argv[]) {
-	GtkWidget *window, *box, *scrolled_window,
-	*menu_item, *menu_bar, *file_menu, *help_menu,
+	GtkWidget *menu_item, *menu_bar, *file_menu, *help_menu,
 	*edit_menu, *format_menu, *view_menu, *separator;
 
 	GdkPixbuf *icon = gdk_pixbuf_new_from_file("./source/icon.png", NULL);
@@ -223,11 +232,13 @@ int main(int argc, char* argv[]) {
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), separator);
 
+	/*
 	separator = gtk_separator_menu_item_new();
 	menu_item = gtk_menu_item_new_with_label("View");
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), view_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), menu_item);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), separator);
+	*/
 
 	separator = gtk_separator_menu_item_new();
 	menu_item = gtk_menu_item_new_with_label("Help");
@@ -287,8 +298,11 @@ int main(int argc, char* argv[]) {
 	gtk_menu_shell_append(GTK_MENU_SHELL(format_menu), menu_item);
 	g_signal_connect(menu_item, "toggled", G_CALLBACK(text_wrap), NULL);
 
+	/*
 	menu_item = gtk_check_menu_item_new_with_label("Status Bar");
 	gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), menu_item);
+	g_signal_connect(menu_item, "toggled", G_CALLBACK(show_status_bar), NULL);
+	*/
 
 	menu_item = gtk_menu_item_new_with_label("About Us");
 	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), menu_item);
@@ -298,7 +312,7 @@ int main(int argc, char* argv[]) {
 	gtk_box_pack_start(GTK_BOX(box), menu_bar, 0, 0, 0);
 
 	gtk_container_add(GTK_CONTAINER(scrolled_window), view);
-	gtk_scrolled_window_set_shadow_type (scrolled_window, GTK_SHADOW_NONE);
+	gtk_scrolled_window_set_shadow_type(scrolled_window, GTK_SHADOW_NONE);
 	gtk_container_set_border_width (GTK_CONTAINER(scrolled_window), 0);
 	gtk_text_view_set_left_margin(view, 5);
 	gtk_text_view_set_right_margin(view, 5);
